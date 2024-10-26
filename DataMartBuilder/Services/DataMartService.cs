@@ -1,27 +1,31 @@
 ﻿using DataMartBuilder.Interfaces;
+using DataMartBuilder.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace DataMartBuilder.Services
 {
-    public class DataMartService : IDataMartService
+    public class DataMartService
     {
-        private readonly string _destinationConnectionString;
+        private readonly DataMartDbContext _context;
 
-        public DataMartService(string destinationConnectionString)
+        public DataMartService()
         {
-            _destinationConnectionString = destinationConnectionString;
+            _context = new DataMartDbContext();
         }
 
-        public async Task CreateOrUpdateTableAsync(string tableName, List<string> columns, DataTable data)
+        public List<DataMart> GetDataMarts() => _context.DataMarts.ToList();
+
+        public void AddDataMart(DataMart dataMart)
         {
-            var context = new DbContextOptionsBuilder<DbContext>()
-                .UseSqlServer(_destinationConnectionString)
-                .Options;
+            _context.DataMarts.Add(dataMart);
+            _context.SaveChanges();
+        }
 
-            var dbContext = new DbContext(context);
-
-            // Создание таблицы и вставка данных
+        public void RemoveDataMart(DataMart dataMart)
+        {
+            _context.DataMarts.Remove(dataMart);
+            _context.SaveChanges();
         }
     }
 }

@@ -2,10 +2,12 @@
 
 namespace DataMartBuilder.Models
 {
-    public class DataMartContext : DbContext
+    public class DataMartDbContext : DbContext
     {
-        public DataMartContext(DbContextOptions<DataMartContext> options) : base(options) { }
+        public DbSet<DataMart> DataMarts { get; set; }
+        public DbSet<DatabaseConnection> DatabaseConnections { get; set; }
 
-        public DbSet<CustomTable> CustomTables { get; set; }
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+            => options.UseSqlServer("Data Source=datamarts.db");
     }
 }

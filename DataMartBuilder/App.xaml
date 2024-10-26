@@ -103,6 +103,8 @@
                 <Setter Property="Margin" Value="5"/>
                 <Setter Property="Foreground" Value="White"/>
             </Style>
+
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
