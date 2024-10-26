@@ -1,12 +1,65 @@
 ﻿<Window x:Class="DataMartBuilder.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DataMartBuilder"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Data Mart Builder" Height="600" Width="900"
+        Background="#2E2E2E"
+        Foreground="White">
     <Grid>
+        <TabControl>
+            <TabItem Header="Витрины данных">
+                <StackPanel>
+                    <ListBox ItemsSource="{Binding DataMarts}" SelectedItem="{Binding SelectedDataMart}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Name}" Margin="5"/>
+                                    <Button Content="Удалить" Command="{Binding DataContext.DeleteDataMartCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Button Content="Добавить Витрину" Command="{Binding AddDataMartCommand}"/>
+                </StackPanel>
+            </TabItem>
 
+            <TabItem Header="Редактирование Витрины">
+                <ScrollViewer>
+                    <StackPanel>
+                        <Expander Header="Настройка баз данных" IsExpanded="True">
+                            <StackPanel>
+                                <ComboBox ItemsSource="{Binding AvailableDataSources}" SelectedItem="{Binding SelectedDataSource}" />
+                                <TextBox Text="{Binding SelectedDataSource.ConnectionString}" />
+                                <Button Content="Подключиться" Command="{Binding ConnectDatabaseCommand}" />
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander Header="Настройка данных для витрины" IsExpanded="False">
+                            <StackPanel>
+                                <ComboBox ItemsSource="{Binding Tables}" SelectedItem="{Binding SelectedTable}" />
+                                <Button Content="Загрузить Столбцы" Command="{Binding LoadColumnsCommand}"/>
+                                <ListBox ItemsSource="{Binding SelectedColumns}" SelectionMode="Multiple">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Content="{Binding}" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <Button Content="Перенести данные" Command="{Binding TransferDataCommand}" />
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander Header="Настройка связей" IsExpanded="False">
+                            <StackPanel>
+                                <TextBlock Text="Выберите таблицу для связи"/>
+                                <ComboBox ItemsSource="{Binding Tables}" SelectedItem="{Binding SelectedRelationTable}" />
+                                <TextBlock Text="Выберите колонку для связи"/>
+                                <ComboBox ItemsSource="{Binding Columns}" SelectedItem="{Binding SelectedRelationColumn}" />
+                                <Button Content="Добавить Связь" Command="{Binding AddRelationCommand}" />
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
