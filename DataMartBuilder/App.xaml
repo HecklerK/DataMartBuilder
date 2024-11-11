@@ -104,6 +104,51 @@
                 <Setter Property="Foreground" Value="White"/>
             </Style>
 
+            <Style TargetType="ListBoxItem" x:Key="DarkListBoxItemStyle">
+                <Setter Property="Background" Value="#333333"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#555555"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style TargetType="ComboBox" x:Key="DarkComboBoxStyle">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Background" Value="#333333"/>
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="BorderBrush" Value="Gray"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ComboBox">
+                            <Grid>
+                                <ToggleButton x:Name="ToggleButton" Template="{StaticResource ComboBoxToggleButton}" 
+                                  Focusable="False" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}"
+                                  ClickMode="Press">
+                                    <ContentPresenter />
+                                </ToggleButton>
+                                <Popup Name="Popup" Placement="Bottom" AllowsTransparency="True" Focusable="False" 
+                           IsOpen="{TemplateBinding IsDropDownOpen}" PopupAnimation="Slide">
+                                    <Grid Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}">
+                                        <Border x:Name="DropDownBorder" Background="#333333" BorderThickness="1" BorderBrush="Gray">
+                                            <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                                <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                            </ScrollViewer>
+                                        </Border>
+                                    </Grid>
+                                </Popup>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>

@@ -1,4 +1,7 @@
-﻿using DataMartBuilder.Models;
+﻿using DataMartBuilder.Interfaces;
+using DataMartBuilder.Models;
+using DataMartBuilder.Services;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows;
@@ -18,39 +21,49 @@ namespace DataMartBuilder
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ObservableCollection<DataMart> dataMarts = new ObservableCollection<DataMart>();
-        private ObservableCollection<DatabaseConnection> databaseConnections = new ObservableCollection<DatabaseConnection>();
-        private ObservableCollection<string> targetTables = new ObservableCollection<string>(); // Таблицы целевой БД
-        private DataMart currentDataMart;
+        public ObservableCollection<DataMart> DataMarts { get; set; }
+        public DataMart SelectedDataMart { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+            DataMarts = new ObservableCollection<DataMart>();
+            DataMartList.ItemsSource = DataMarts;
         }
 
         private void AddDataMart_Click(object sender, RoutedEventArgs e)
         {
-            // Добавление новой витрины данных
-            var dataMart = new DataMart { Name = DataMartNameTextBox.Text };
-            dataMarts.Add(dataMart);
+            if (string.IsNullOrEmpty(DataMartNameTextBox.Text))
+            {
+                MessageBox.Show("Нужно ввести имя витрины данных");
+                return;
+            }
+
+            var newDataMart = new DataMart { Name = DataMartNameTextBox.Text };
+            DataMarts.Add(newDataMart);
+            DataMartList.SelectedItem = newDataMart;
         }
 
         private void DeleteDataMart_Click(object sender, RoutedEventArgs e)
         {
-            // Удаление выбранной витрины данных
+            if (SelectedDataMart != null)
+            {
+                DataMarts.Remove(SelectedDataMart);
+            }
         }
 
         private void DataMartList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (DataMartList.SelectedItem is DataMart selectedDataMart)
+            SelectedDataMart = DataMartList.SelectedItem as DataMart;
+            EditDataMartTab.IsEnabled = SelectedDataMart != null;
+            BindDataMartDetails();
+        }
+
+        private void BindDataMartDetails()
+        {
+            if (SelectedDataMart != null)
             {
-                // Загрузка данных витрины
-                DataMartNameTextBox.Text = selectedDataMart.Name;
-                EditDataMartTab.IsEnabled = true;
-            }
-            else
-            {
-                EditDataMartTab.IsEnabled = false;
+                DatabaseConnectionsList.ItemsSource = SelectedDataMart.DatabaseConnections;
             }
         }
 
@@ -58,34 +71,41 @@ namespace DataMartBuilder
         {
             if (EditDataMartTab.IsSelected && DataMartList.SelectedItem == null)
             {
-                MessageBox.Show("Пожалуйста, выберите витрину данных для редактирования.");
                 EditDataMartTab.IsSelected = false;
+                ListDataMartTab.IsSelected = true;
             }
         }
 
         private void DatabaseConnectionsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Логика обработки выбора базы данных
-            if (DatabaseConnectionsList.SelectedItem is DatabaseConnection selectedConnection)
-            {
-                DbConnectionName.Text = selectedConnection.Name;
-                DbConnectionString.Text = selectedConnection.ConnectionString;
-            }
-            else
-            {
-                DbConnectionName.Text = string.Empty;
-                DbConnectionString.Text = string.Empty;
-            }
+
         }
 
         private void AddDatabaseConnection_Click(object sender, RoutedEventArgs e)
         {
-            // Логика добавления подключения к базе данных
+            var nameConnection = DbConnectionName.Text;
+            var connectionString = DbConnectionString.Text;
+
+            if (nameConnection != null && connectionString != null)
+            {
+                var connectionType = ConnectionType.SelectedItem as ComboBoxItem;
+                switch (connectionType?.Uid)
+                {
+                    case "SqlServer":
+                        SelectedDataMart.DatabaseConnections.Add(new SqlServerConnector(nameConnection, connectionString));
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         private void DeleteDatabaseConnection_Click(object sender, RoutedEventArgs e)
         {
-            // Логика удаления подключения к базе данных
+            if (DatabaseConnectionsList.SelectedItem != null)
+            {
+                SelectedDataMart.DatabaseConnections.Remove(DatabaseConnectionsList.SelectedItem as IDatabaseConnection);
+            }
         }
 
         private void CheckDbConnection_Click(object sender, RoutedEventArgs e)

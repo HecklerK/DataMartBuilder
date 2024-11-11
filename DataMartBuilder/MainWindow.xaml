@@ -3,7 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Data Mart Builder" Height="600" Width="900"
         Background="#2E2E2E"
-        Foreground="White">
+        Foreground="White"
+        MinHeight="400"
+        MinWidth="500">
     <Window.Resources>
         <Style TargetType="TextBox" x:Key="PlaceholderTextBoxStyle">
             <Setter Property="Foreground" Value="White" />
@@ -18,7 +20,7 @@
                                      Foreground="{TemplateBinding Foreground}" Background="{TemplateBinding Background}"
                                      BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                                      Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
-                            <TextBlock Text="{TemplateBinding Tag}" Foreground="Gray" Margin="10,0,0,0"
+                            <TextBlock Text="{TemplateBinding Tag}" Foreground="Gray" Margin="15,0,0,0"
                                        IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Left"
                                        Visibility="{Binding Text.IsEmpty, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         </Grid>
@@ -27,33 +29,102 @@
             </Setter>
         </Style>
 
-        <!-- Стиль для ComboBox -->
+        <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
+            <Border x:Name="Border" Background="#333333" BorderBrush="Gray" BorderThickness="1" Padding="3,2,3,2">
+                <Grid>
+                    <Path x:Name="Arrow" Fill="White" HorizontalAlignment="Right" Margin="0,0,4,0" VerticalAlignment="Center" 
+          Data="M 0 0 L 4 4 L 8 0 Z"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Border" Property="Background" Value="#444444"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="Border" Property="Background" Value="#222222"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Arrow" Property="Fill" Value="Gray"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
         <Style TargetType="ComboBox" x:Key="DarkComboBoxStyle">
-            <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="#333333"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="5,3"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
             <Setter Property="BorderThickness" Value="1"/>
+
+            <!-- Настройка раскрывающегося списка -->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <ToggleButton x:Name="ToggleButton" Template="{StaticResource ComboBoxToggleButton}" 
-                                          Focusable="False" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}"
-                                          ClickMode="Press">
-                                <ContentPresenter />
-                            </ToggleButton>
-                            <Popup Name="Popup" Placement="Bottom" AllowsTransparency="True" Focusable="False" 
-                                   IsOpen="{TemplateBinding IsDropDownOpen}" PopupAnimation="Slide">
-                                <Grid Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}">
-                                    <Border x:Name="DropDownBorder" Background="#333333" BorderThickness="1" BorderBrush="Gray">
-                                        <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
-                                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
-                                        </ScrollViewer>
-                                    </Border>
+                            <ToggleButton 
+                            Name="ToggleButton" 
+                            Template="{StaticResource ComboBoxToggleButton}" 
+                            Grid.Column="2" 
+                            Focusable="false"
+                            IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                            ClickMode="Press"/>
+                            <ContentPresenter 
+                            Name="ContentSite"
+                            IsHitTestVisible="False" 
+                            Content="{TemplateBinding SelectionBoxItem}"
+                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                            Margin="10,0,23,0"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"/>
+                            <TextBox x:Name="PART_EditableTextBox"
+                            Style="{x:Null}" 
+                            HorizontalAlignment="Left" 
+                            VerticalAlignment="Center" 
+                            Margin="5,0,23,0"
+                            Focusable="True"
+                            Background="Transparent"
+                            Foreground="White"
+                            Visibility="Hidden" 
+                            IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                            <Popup 
+                            Name="Popup"
+                            Placement="Bottom"
+                            IsOpen="{TemplateBinding IsDropDownOpen}"
+                            AllowsTransparency="True" 
+                            Focusable="False"
+                            PopupAnimation="Slide">
+                                <Grid 
+                                Name="DropDown"
+                                SnapsToDevicePixels="True"                
+                                MinWidth="{TemplateBinding ActualWidth}"
+                                MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border 
+                                    x:Name="DropDownBorder"
+                                    Background="#333333" 
+                                    BorderBrush="#555555" 
+                                    BorderThickness="1"/>
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
                                 </Grid>
                             </Popup>
                         </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="false">
+                                <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="Gray"/>
+                            </Trigger>
+                            <Trigger Property="IsEditable" Value="true">
+                                <Setter Property="IsTabStop" Value="false"/>
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -62,34 +133,56 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Window.Resources>
 
+    <!-- Основной интерфейс -->
     <Grid>
         <TabControl SelectionChanged="TabControl_SelectionChanged">
-            <TabItem Header="Витрины Данных">
+            <TabItem Header="Витрины Данных" x:Name="ListDataMartTab">
                 <Grid>
-                    <StackPanel Orientation="Vertical" Margin="10">
-                        <ListBox x:Name="DataMartList" Margin="5" Height="200"
-                                 SelectionChanged="DataMartList_SelectionChanged"/>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="227*"/>
+                        <RowDefinition Height="85"/>
+                    </Grid.RowDefinitions>
+                    <ListBox x:Name="DataMartList" Margin="5"
+                             SelectionChanged="DataMartList_SelectionChanged"
+                             ItemContainerStyle="{StaticResource DarkListBoxItemStyle}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" Foreground="White"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Orientation="Vertical" Grid.Row="1">
+                        <TextBox x:Name="DataMartNameTextBox" Margin="0"
+                                 Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Введите название витрины" />
 
-                        <!-- Поле для ввода/редактирования имени витрины данных -->
-                        <TextBox x:Name="DataMartNameTextBox"
-                                 Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Введите название витрины"/>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Cursor="">
                             <Button Content="Добавить Витрину" Click="AddDataMart_Click" Margin="5"/>
                             <Button Content="Удалить Витрину" Click="DeleteDataMart_Click" Margin="5"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Редактировать Витрину" x:Name="EditDataMartTab" IsEnabled="True">
+            <TabItem Header="Редактировать Витрину" x:Name="EditDataMartTab" IsEnabled="False">
                 <ScrollViewer>
                     <StackPanel Orientation="Vertical" Margin="10">
                         <Expander Header="Подключения к БД" IsExpanded="True">
-                            <StackPanel>
-                                <ListBox x:Name="DatabaseConnectionsList" Height="150" Margin="5"
-                                         SelectionChanged="DatabaseConnectionsList_SelectionChanged"/>
-                                <Button Content="Добавить БД" Click="AddDatabaseConnection_Click" Margin="5"/>
-                                <Button Content="Удалить БД" Click="DeleteDatabaseConnection_Click" Margin="5"/>
+                            <StackPanel Cursor="">
+                                <ListBox x:Name="DatabaseConnectionsList" 
+                                         ItemsSource="{Binding SelectedDataMart.DatabaseConnections}"
+                                         ItemContainerStyle="{StaticResource DarkListBoxItemStyle}" Height="200">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" Foreground="White"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Button Content="Добавить БД" Click="AddDatabaseConnection_Click" Margin="5"/>
+                                    <Button Content="Удалить БД" Click="DeleteDatabaseConnection_Click" Margin="5"/>
+                                </StackPanel>
+                                <ComboBox Name="ConnectionType" Style="{StaticResource DarkComboBoxStyle}" Margin="10">
+                                    <ComboBoxItem Uid="SqlServer" Content="Sql Server"/>
+                                </ComboBox>
                                 <TextBox x:Name="DbConnectionName" Margin="5" Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Название подключения"/>
                                 <TextBox x:Name="DbConnectionString" Margin="5" Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Строка подключения"/>
                                 <Button Content="Проверить Подключение" Click="CheckDbConnection_Click" Margin="5"/>
