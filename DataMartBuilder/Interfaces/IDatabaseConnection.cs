@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DataMartBuilder.Models;
+using System.Text.Json.Serialization;
 
 namespace DataMartBuilder.Interfaces
 {
@@ -10,8 +7,10 @@ namespace DataMartBuilder.Interfaces
     {
         string Name { get; set; }
         string ConnectionString { get; set; }
+        List<Table> DbTables { get; set; }
         bool Connect();
         bool Disconnect();
-        bool TestConnection();
+        string TestConnection();
+        void GetData();
     }
 }

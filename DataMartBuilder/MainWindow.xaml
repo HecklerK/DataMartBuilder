@@ -5,7 +5,7 @@
         Background="#2E2E2E"
         Foreground="White"
         MinHeight="400"
-        MinWidth="500">
+        MinWidth="500" Closed="Window_Closed" >
     <Window.Resources>
         <Style TargetType="TextBox" x:Key="PlaceholderTextBoxStyle">
             <Setter Property="Foreground" Value="White" />
@@ -176,16 +176,21 @@
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
-                                <StackPanel Orientation="Horizontal" Margin="5">
-                                    <Button Content="Добавить БД" Click="AddDatabaseConnection_Click" Margin="5"/>
-                                    <Button Content="Удалить БД" Click="DeleteDatabaseConnection_Click" Margin="5"/>
-                                </StackPanel>
-                                <ComboBox Name="ConnectionType" Style="{StaticResource DarkComboBoxStyle}" Margin="10">
+                                <Grid Margin="5">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Button Content="Добавить БД" Click="AddDatabaseConnection_Click" Margin="5"/>
+                                        <Button Content="Удалить БД" Click="DeleteDatabaseConnection_Click" Margin="5"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="Проверить Подключение" Click="CheckDbConnection_Click" Margin="5"/>
+                                        <Label x:Name="StatusConnectsDb" Background="Yellow" Width="50" Margin="5"/>
+                                    </StackPanel>
+                                </Grid>
+                                <ComboBox Name="ConnectionType" Style="{StaticResource DarkComboBoxStyle}" Margin="10" SelectionChanged="ConnectionType_SelectionChanged">
                                     <ComboBoxItem Uid="SqlServer" Content="Sql Server"/>
                                 </ComboBox>
                                 <TextBox x:Name="DbConnectionName" Margin="5" Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Название подключения"/>
                                 <TextBox x:Name="DbConnectionString" Margin="5" Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Строка подключения"/>
-                                <Button Content="Проверить Подключение" Click="CheckDbConnection_Click" Margin="5"/>
                             </StackPanel>
                         </Expander>
                         <Expander Header="Целевая База Данных" IsExpanded="True">
