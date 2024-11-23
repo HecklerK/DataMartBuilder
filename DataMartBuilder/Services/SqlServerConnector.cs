@@ -73,24 +73,38 @@ namespace DataMartBuilder.Services
             }
         }
 
-        public void GetData()
+        public string GetData()
         {
-            var serverConnection = new ServerConnection(ConnectionString);
-            var server = new Server(serverConnection);
-
-            var db = server.Databases[0];
-
-            foreach (Table table in db.Tables)
+            try
             {
-                var listColumns = new List<string>();
-
-                foreach (Column column in table.Columns)
+                using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
                 {
-                    listColumns.Add(column.Name);
-                }
+                    sqlConnection.Open();
 
-                DbTables.Add(new Models.Table(table.Name, listColumns));
+                    var serverConnection = new ServerConnection(sqlConnection);
+                    var server = new Server(serverConnection);
+
+                    var db = server.Databases[sqlConnection.Database];
+
+                    foreach (Table table in db.Tables)
+                    {
+                        var listColumns = new List<string>();
+
+                        foreach (Column column in table.Columns)
+                        {
+                            listColumns.Add(column.Name);
+                        }
+
+                        DbTables.Add(new Models.Table(table.Name, listColumns));
+                    }
+                }
             }
+            catch(Exception ex)
+            {
+                return ex.Message;
+            }
+
+            return string.Empty;
         }
 
         [XmlInclude(typeof(SqlServerConnector))]

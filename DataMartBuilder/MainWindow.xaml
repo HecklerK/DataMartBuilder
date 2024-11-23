@@ -1,7 +1,7 @@
 ﻿<Window x:Class="DataMartBuilder.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Data Mart Builder" Height="600" Width="900"
+        Title="Data Mart Builder" Height="806" Width="900"
         Background="#2E2E2E"
         Foreground="White"
         MinHeight="400"
@@ -163,63 +163,109 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Редактировать Витрину" x:Name="EditDataMartTab" IsEnabled="False">
-                <ScrollViewer>
-                    <StackPanel Orientation="Vertical" Margin="10">
-                        <Expander Header="Подключения к БД" IsExpanded="True">
-                            <StackPanel Cursor="">
-                                <ListBox x:Name="DatabaseConnectionsList" 
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <ScrollViewer Grid.RowSpan="1" IsEnabled="True">
+                        <StackPanel Orientation="Vertical" Margin="0, 0, 0, 10">
+                            <Expander Header="Подключения к БД" IsExpanded="True">
+                                <StackPanel Cursor="">
+                                    <ListBox x:Name="DatabaseConnectionsList" 
                                          ItemsSource="{Binding SelectedDataMart.DatabaseConnections}"
                                          ItemContainerStyle="{StaticResource DarkListBoxItemStyle}" Height="200">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Name}" Foreground="White"/>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                                <Grid Margin="5">
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                        <Button Content="Добавить БД" Click="AddDatabaseConnection_Click" Margin="5"/>
-                                        <Button Content="Удалить БД" Click="DeleteDatabaseConnection_Click" Margin="5"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <Button Content="Проверить Подключение" Click="CheckDbConnection_Click" Margin="5"/>
-                                        <Label x:Name="StatusConnectsDb" Background="Yellow" Width="50" Margin="5"/>
-                                    </StackPanel>
-                                </Grid>
-                                <ComboBox Name="ConnectionType" Style="{StaticResource DarkComboBoxStyle}" Margin="10" SelectionChanged="ConnectionType_SelectionChanged">
-                                    <ComboBoxItem Uid="SqlServer" Content="Sql Server"/>
-                                </ComboBox>
-                                <TextBox x:Name="DbConnectionName" Margin="5" Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Название подключения"/>
-                                <TextBox x:Name="DbConnectionString" Margin="5" Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Строка подключения"/>
-                            </StackPanel>
-                        </Expander>
-                        <Expander Header="Целевая База Данных" IsExpanded="True">
-                            <StackPanel>
-                                <TextBox x:Name="TargetConnectionString" Margin="5" 
-                                         Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Строка подключения"/>
-                                <Button Content="Подключиться" Click="ConnectToTargetDatabase_Click" Margin="5"/>
-                                <ListBox x:Name="TargetTablesList" Margin="5" Height="100" SelectionMode="Multiple"/>
-                                <Button Content="Добавить Таблицу" Click="AddTable_Click" Margin="5"/>
-                                <Button Content="Удалить Таблицу" Click="RemoveTable_Click" Margin="5"/>
-                            </StackPanel>
-                        </Expander>
-                        <Expander Header="Связи Таблиц" IsExpanded="True">
-                            <StackPanel>
-                                <ComboBox x:Name="SourceTableComboBox" Width="150" Margin="5"
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name}" Foreground="White"/>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <Grid Margin="5">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                            <Button Content="Добавить БД" Click="AddDatabaseConnection_Click" Margin="5"/>
+                                            <Button Content="Удалить БД" Click="DeleteDatabaseConnection_Click" Margin="5"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Content="Подключение к БД" Click="CheckDbConnection_Click" Margin="5"/>
+                                            <Label x:Name="StatusConnectsDb" Background="Yellow" Width="50" Margin="5"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <ComboBox Name="ConnectionType" Style="{StaticResource DarkComboBoxStyle}" Margin="10" SelectionChanged="ConnectionType_SelectionChanged">
+                                        <ComboBoxItem Uid="SqlServer" Content="Sql Server"/>
+                                    </ComboBox>
+                                    <TextBox x:Name="DbConnectionName" Margin="5" Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Название подключения"/>
+                                    <TextBox x:Name="DbConnectionString" Margin="5" Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Строка подключения"/>
+                                </StackPanel>
+                            </Expander>
+                            <Expander Header="Целевая База Данных" IsExpanded="True">
+                                <StackPanel>
+                                    <TextBox x:Name="CurrentConnectionString" Margin="5" 
+                                         Style="{StaticResource PlaceholderTextBoxStyle}" Tag="Строка подключения" TextChanged="TargetConnectionString_TextChanged"/>
+                                    <Grid Margin="5, 0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <ComboBox Name="CurrentConnectionType" Style="{StaticResource DarkComboBoxStyle}" Margin="5" Width="150" SelectionChanged="CurrentConnectionType_SelectionChanged">
+                                                <ComboBoxItem Uid="SqlServer" Content="Sql Server"/>
+                                            </ComboBox>
+                                            <Button Content="Подключиться" Click="ConnectToTargetDatabase_Click" Margin="5"/>
+                                            <Label x:Name="StatusConnectsCurrentDb" Background="Yellow" Width="50" Margin="5"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Foreground="White">Доступные таблицы</Label>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Content="↻" Click="UpdateAvailableTables_Click" FontSize="18" Padding="4, 0" Margin="0, 0, 5, 0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <ListBox x:Name="TargetTablesList" Margin="5" Height="100" SelectionMode="Multiple"
+                                         ItemsSource="{Binding AvailableTables}"
+                                         ItemContainerStyle="{StaticResource DarkListBoxItemStyle}">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding TableName}" Foreground="White"/>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <Button Content="Добавить Таблицу" Click="AddTable_Click" Margin="5"/>
+                                    <Label Foreground="White">Выбранные таблицы</Label>
+                                    <ListBox x:Name="SelectedTablesList" Margin="5" Height="100" SelectionMode="Multiple"
+                                         ItemsSource="{Binding SelectedDataMart.SelectedTables}"
+                                         ItemContainerStyle="{StaticResource DarkListBoxItemStyle}">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding TableName}" Foreground="White"/>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <Button Content="Удалить Таблицу" Click="RemoveTable_Click" Margin="5"/>
+                                </StackPanel>
+                            </Expander>
+                            <Expander Header="Связи Таблиц" IsExpanded="False" Visibility="Hidden">
+                                <StackPanel>
+                                    <ComboBox x:Name="SourceTableComboBox" Width="150" Margin="5"
                                           Style="{StaticResource DarkComboBoxStyle}" Tag="Таблица 1"/>
-                                <ComboBox x:Name="SourceColumnComboBox" Width="150" Margin="5"
+                                    <ComboBox x:Name="SourceColumnComboBox" Width="150" Margin="5"
                                           Style="{StaticResource DarkComboBoxStyle}" Tag="Поле Таблицы 1"/>
-                                <ComboBox x:Name="TargetTableComboBox" Width="150" Margin="5"
+                                    <ComboBox x:Name="TargetTableComboBox" Width="150" Margin="5"
                                           Style="{StaticResource DarkComboBoxStyle}" Tag="Таблица 2"/>
-                                <ComboBox x:Name="TargetColumnComboBox" Width="150" Margin="5"
+                                    <ComboBox x:Name="TargetColumnComboBox" Width="150" Margin="5"
                                           Style="{StaticResource DarkComboBoxStyle}" Tag="Поле Таблицы 2"/>
-                                <ListBox x:Name="LinksList" Height="150" Margin="5"/>
-                                <Button Content="Добавить Связь" Click="AddLink_Click" Margin="5"/>
-                                <Button Content="Удалить Связь" Click="RemoveLink_Click" Margin="5"/>
-                            </StackPanel>
-                        </Expander>
-                    </StackPanel>
-                </ScrollViewer>
+                                    <ListBox x:Name="LinksList" Height="150" Margin="5"/>
+                                    <Button Content="Добавить Связь" Click="AddLink_Click" Margin="5"/>
+                                    <Button Content="Удалить Связь" Click="RemoveLink_Click" Margin="5"/>
+                                </StackPanel>
+                            </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <Grid Grid.Row="1" Grid.RowSpan="1">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                            <Button Content="Сохранить данные" Click="SaveData_Click"/>
+                            <Button Content="Перенос данных" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
             </TabItem>
         </TabControl>
     </Grid>

@@ -11,6 +11,6 @@ namespace DataMartBuilder.Interfaces
         bool Connect();
         bool Disconnect();
         string TestConnection();
-        void GetData();
+        string GetData();
     }
 }

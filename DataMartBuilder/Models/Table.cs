@@ -8,8 +8,8 @@ namespace DataMartBuilder.Models
 {
     public class Table
     {
-        string Name {  get; set; }
-        List<string> Columns { get; set; }
+        public string Name {  get; set; }
+        public List<string> Columns { get; set; }
 
         public Table(string name, List<string> columns) 
         {

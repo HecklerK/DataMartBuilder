@@ -7,14 +7,14 @@ namespace DataMartBuilder.Models
     {
         public string Name { get; set; }
         public ObservableCollection<DbConnection> DatabaseConnections { get; set; }
-        public DbConnection TargetDatabase { get; set; }
-        public ObservableCollection<string> SelectedTables { get; set; }
+        public DbConnection CurrantDatabase { get; set; }
+        public ObservableCollection<SelectedTable> SelectedTables { get; set; }
         public List<string> Links { get; set; }
 
         public DataMart()
         {
             DatabaseConnections = new ObservableCollection<DbConnection>();
-            SelectedTables = new ObservableCollection<string>();
+            SelectedTables = new ObservableCollection<SelectedTable>();
         }
     }
 }

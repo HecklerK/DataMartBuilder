@@ -107,7 +107,7 @@
             <Style TargetType="ListBoxItem" x:Key="DarkListBoxItemStyle">
                 <Setter Property="Background" Value="#333333"/>
                 <Setter Property="Foreground" Value="White"/>
-                <Setter Property="Margin" Value="5"/>
+                <Setter Property="Margin" Value="1"/>
                 <Setter Property="Padding" Value="5"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 <Style.Triggers>

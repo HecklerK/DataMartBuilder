@@ -28,6 +28,7 @@ namespace DataMartBuilder
         public DataMart SelectedDataMart { get; set; }
         private List<IDatabaseConnection> TargetDatabases {  get; set; }
         private IDatabaseConnection CurrentDatebase { get; set; }
+        public ObservableCollection<SelectedTable> AvailableTables = new ObservableCollection<SelectedTable>();
 
         public MainWindow()
         {
@@ -41,6 +42,12 @@ namespace DataMartBuilder
             if (string.IsNullOrEmpty(DataMartNameTextBox.Text))
             {
                 MessageBox.Show("Нужно ввести имя витрины данных");
+                return;
+            }
+
+            if (DataMarts.Any(x => x.Name == DataMartNameTextBox.Text))
+            {
+                MessageBox.Show("Имя БД должно быть уникально");
                 return;
             }
 
@@ -69,9 +76,18 @@ namespace DataMartBuilder
             if (SelectedDataMart != null)
             {
                 DatabaseConnectionsList.ItemsSource = SelectedDataMart.DatabaseConnections;
+                TargetTablesList.ItemsSource = AvailableTables;
 
                 TargetDatabases = SelectedDataMart.DatabaseConnections.Select(x => GetDataConnection(x)).ToList();
-                CurrentDatebase = SelectedDataMart.TargetDatabase != null ? GetDataConnection(SelectedDataMart.TargetDatabase) : null;
+                CurrentDatebase = SelectedDataMart.CurrantDatabase != null ? GetDataConnection(SelectedDataMart.CurrantDatabase) : null;
+
+                if (SelectedDataMart.CurrantDatabase != null)
+                {
+                    CurrentConnectionString.Text = SelectedDataMart.CurrantDatabase.ConnectionString;
+                    SelectedTablesList.ItemsSource = SelectedDataMart.SelectedTables;
+                }
+
+                UpdateAvailableTables();
             }
         }
 
@@ -111,6 +127,8 @@ namespace DataMartBuilder
                 ConnectionType.SelectedIndex = -1;
 
                 BindDataMartDetails();
+
+                StatusConnectsCurrentDb.Background = Brushes.Yellow;
             }
         }
 
@@ -119,6 +137,8 @@ namespace DataMartBuilder
             if (DatabaseConnectionsList.SelectedItem != null)
             {
                 SelectedDataMart.DatabaseConnections.Remove(DatabaseConnectionsList.SelectedItem as DbConnection);
+
+                StatusConnectsCurrentDb.Background = Brushes.Yellow;
             }
 
             BindDataMartDetails();
@@ -131,17 +151,99 @@ namespace DataMartBuilder
 
         private void ConnectToTargetDatabase_Click(object sender, RoutedEventArgs e)
         {
-            // Логика подключения к целевой базе данных
+            ConnectToTargetDatabase();
+        }
+
+        private void ConnectToTargetDatabase()
+        {
+            if (SelectedDataMart.CurrantDatabase == null || string.IsNullOrEmpty(SelectedDataMart.CurrantDatabase.ConnectionString))
+            {
+                if (!string.IsNullOrEmpty(CurrentConnectionString.Text))
+                {
+                    if (SelectedDataMart.CurrantDatabase == null)
+                    {
+                        if (CurrentConnectionType.SelectedItem as ComboBoxItem == null)
+                        {
+                            MessageBox.Show("Выбирите тип подключения");
+                            return;
+                        }
+
+                        var connectionType = CurrentConnectionType.SelectedItem as ComboBoxItem;
+                        switch (connectionType?.Uid)
+                        {
+                            case "SqlServer":
+                                SelectedDataMart.CurrantDatabase = new DbConnection("DataMart", CurrentConnectionString.Text, ConnectionTypes.SqlServer);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        BindDataMartDetails();
+                    }
+                    else
+                    {
+                        SelectedDataMart.CurrantDatabase.ConnectionString = CurrentConnectionString.Text;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Заполните поле строки подключения к Базе данных витрины");
+                    return;
+                }
+            }
+
+            if (CurrentConnectionString.Text != SelectedDataMart.CurrantDatabase.ConnectionString)
+                SelectedDataMart.CurrantDatabase.ConnectionString = CurrentConnectionString.Text;
+
+            var isError = false;
+            var errors = new StringBuilder();
+
+            var message = CurrentDatebase.TestConnection();
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                isError = true;
+                errors.AppendLine($"Не удалось подключиться, ошибка: {message}");
+            }
+
+            if (isError)
+            {
+                StatusConnectsCurrentDb.Background = Brushes.Red;
+                MessageBox.Show(errors.ToString());
+                return;
+            }
+            else
+            {
+                StatusConnectsCurrentDb.Background = Brushes.Green;
+            }
+
+            var error = CurrentDatebase.GetData();
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                MessageBox.Show("При получении данных вохникла ошибка: " + error.ToString());
+            }
         }
 
         private void AddTable_Click(object sender, RoutedEventArgs e)
         {
-            // Логика добавления таблицы в целевую БД
+            if (SelectedDataMart.CurrantDatabase == null)
+            {
+                MessageBox.Show("Подключитесь к целевой БД");
+                return;
+            }
+
+            if (TargetTablesList.SelectedItem != null)
+                SelectedDataMart.SelectedTables.Add(TargetTablesList.SelectedItem as SelectedTable);
+
+            UpdateAvailableTables();
         }
 
         private void RemoveTable_Click(object sender, RoutedEventArgs e)
         {
-            // Логика удаления таблицы из целевой БД
+            if (SelectedTablesList.SelectedItem != null)
+                SelectedDataMart.SelectedTables.Remove(SelectedTablesList.SelectedItem as SelectedTable);
+            UpdateAvailableTables();
         }
 
         private void AddLink_Click(object sender, RoutedEventArgs e)
@@ -160,7 +262,7 @@ namespace DataMartBuilder
             switch (connectionType?.Uid)
             {
                 case "SqlServer":
-                    DbConnectionString.Text = "Server=адрес_сервера;Database=имя_базы_данных;Trusted_Connection=True";
+                    DbConnectionString.Text = "Server=адрес_сервера;Database=имя_базы_данных;Trusted_Connection=True;TrustServerCertificate=true;";
                     break;
                 default:
                     break;
@@ -246,6 +348,15 @@ namespace DataMartBuilder
                 {
                     isError = true;
                     errors.AppendLine($"Не удалось подключиться к {db.Name}, ошибка: {message}");
+                    continue;
+                }
+
+                var error = db.GetData();
+
+                if (!string.IsNullOrEmpty(error))
+                {
+                    isError = true;
+                    errors.AppendLine($"При получении данных из БД {db.Name} возникла ошибка: {error}");
                 }
             }
 
@@ -258,6 +369,49 @@ namespace DataMartBuilder
             {
                 StatusConnectsDb.Background = Brushes.Green;
             }
+        }
+
+        private void TargetConnectionString_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            StatusConnectsCurrentDb.Background = Brushes.Yellow;
+        }
+
+        private void UpdateAvailableTables_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateAvailableTables();
+        }
+
+        private void UpdateAvailableTables()
+        {
+            AvailableTables.Clear();
+
+            foreach (var db in SelectedDataMart.DatabaseConnections)
+            {
+                foreach (var table in db.DbTables)
+                {
+                    var selectedTable = new SelectedTable(table, db);
+                    if (!SelectedDataMart.SelectedTables.Any(x => x.TableName == selectedTable.TableName))
+                        AvailableTables.Add(selectedTable);
+                }
+            }
+        }
+
+        private void CurrentConnectionType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var connectionType = CurrentConnectionType.SelectedItem as ComboBoxItem;
+            switch (connectionType?.Uid)
+            {
+                case "SqlServer":
+                        CurrentConnectionString.Text = "Server=адрес_сервера;Database=имя_базы_данных;Trusted_Connection=True;TrustServerCertificate=true;";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void SaveData_Click(object sender, RoutedEventArgs e)
+        {
+            SaveData();
         }
     }
 }

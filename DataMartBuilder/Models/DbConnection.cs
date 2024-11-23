@@ -10,6 +10,7 @@ namespace DataMartBuilder.Models
         public List<Table> DbTables { get; set; }
         [JsonInclude]
         public ConnectionTypes ConnectionType { get; set; }
+        public List<SelectedTable> SelectedTables { get; set; }
 
         public DbConnection(string name, string connectionString, ConnectionTypes connectionType)
         {
@@ -17,6 +18,7 @@ namespace DataMartBuilder.Models
             ConnectionString = connectionString;
             DbTables = new List<Table>();
             ConnectionType = connectionType;
+            SelectedTables = new List<SelectedTable>();
         }
     }
 }
