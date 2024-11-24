@@ -1,5 +1,4 @@
 ﻿using DataMartBuilder.Models;
-using System.Text.Json.Serialization;
 
 namespace DataMartBuilder.Interfaces
 {

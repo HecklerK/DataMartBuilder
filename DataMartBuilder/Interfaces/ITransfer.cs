@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataMartBuilder.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,11 @@ namespace DataMartBuilder.Interfaces
 {
     public interface ITransfer
     {
-        List<IDatabaseConnection> TargetDbs { get; set; }
+        IDatabaseConnection TargetDb { get; set; }
         IDatabaseConnection CurrentDb {  get; set; }
+        List<Table> Tables { get; set; }
+        bool IsUpdate { get; set; }
 
-        public string TransferDate();
+        public Task<string> TransferDate();
     }
 }

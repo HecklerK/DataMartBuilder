@@ -128,7 +128,7 @@ namespace DataMartBuilder
 
                 BindDataMartDetails();
 
-                StatusConnectsCurrentDb.Background = Brushes.Yellow;
+                StatusConnectsDb.Background = Brushes.Yellow;
             }
         }
 
@@ -138,7 +138,7 @@ namespace DataMartBuilder
             {
                 SelectedDataMart.DatabaseConnections.Remove(DatabaseConnectionsList.SelectedItem as DbConnection);
 
-                StatusConnectsCurrentDb.Background = Brushes.Yellow;
+                StatusConnectsDb.Background = Brushes.Yellow;
             }
 
             BindDataMartDetails();
@@ -272,6 +272,15 @@ namespace DataMartBuilder
         private void Window_Closed(object sender, EventArgs e)
         {
             SaveData();
+            ClearScripts();
+        }
+
+        private void ClearScripts()
+        {
+            var folder = "./scripts";
+
+            if (Directory.Exists(folder))
+                Directory.Delete(folder, true);
         }
 
         private ObservableCollection<DataMart> LoadData()
@@ -412,6 +421,32 @@ namespace DataMartBuilder
         private void SaveData_Click(object sender, RoutedEventArgs e)
         {
             SaveData();
+        }
+
+        private async void TransferData_Click(object sender, RoutedEventArgs e)
+        {
+            MainGrid.IsEnabled = false;
+            TransferDataButton.IsEnabled = false;
+
+            try
+            {
+                var transferData = new TransferData(CurrentDatebase, TargetDatabases, SelectedDataMart.SelectedTables.ToList());
+                var result = await Task.Run(transferData.Execute);
+
+                if (!string.IsNullOrEmpty(result))
+                    MessageBox.Show("Данные перенесены.");
+                else
+                    MessageBox.Show("Возникли ошибки. Ошибки: " + result);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Возникла ошибка при переносе данных: " + ex.Message);
+            }
+            finally
+            {
+                MainGrid.IsEnabled = true;
+                TransferDataButton.IsEnabled = true;
+            }
         }
     }
 }

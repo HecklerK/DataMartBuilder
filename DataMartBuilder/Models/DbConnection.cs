@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Converters;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace DataMartBuilder.Models
 {

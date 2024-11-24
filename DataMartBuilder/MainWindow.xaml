@@ -1,7 +1,7 @@
 ﻿<Window x:Class="DataMartBuilder.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Data Mart Builder" Height="806" Width="900"
+        Title="Data Mart Builder" Height="600" Width="900"
         Background="#2E2E2E"
         Foreground="White"
         MinHeight="400"
@@ -134,7 +134,7 @@
     </Window.Resources>
 
     <!-- Основной интерфейс -->
-    <Grid>
+    <Grid Name="MainGrid">
         <TabControl SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Витрины Данных" x:Name="ListDataMartTab">
                 <Grid>
@@ -262,7 +262,7 @@
                     <Grid Grid.Row="1" Grid.RowSpan="1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
                             <Button Content="Сохранить данные" Click="SaveData_Click"/>
-                            <Button Content="Перенос данных" />
+                            <Button Name="TransferDataButton" Content="Перенос данных" Click="TransferData_Click" />
                         </StackPanel>
                     </Grid>
                 </Grid>
