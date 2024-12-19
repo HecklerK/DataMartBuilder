@@ -142,7 +142,7 @@
                         <RowDefinition Height="227*"/>
                         <RowDefinition Height="85"/>
                     </Grid.RowDefinitions>
-                    <ListBox x:Name="DataMartList" Margin="5"
+                    <ListBox x:Name="DataMartList" Margin="5" SelectionMode="Single"
                              SelectionChanged="DataMartList_SelectionChanged"
                              ItemContainerStyle="{StaticResource DarkListBoxItemStyle}">
                         <ListBox.ItemTemplate>
@@ -219,7 +219,7 @@
                                             <Button Content="↻" Click="UpdateAvailableTables_Click" FontSize="18" Padding="4, 0" Margin="0, 0, 5, 0"/>
                                         </StackPanel>
                                     </Grid>
-                                    <ListBox x:Name="TargetTablesList" Margin="5" Height="100" SelectionMode="Multiple"
+                                    <ListBox x:Name="TargetTablesList" Margin="5" Height="100" SelectionMode="Single"
                                          ItemsSource="{Binding AvailableTables}"
                                          ItemContainerStyle="{StaticResource DarkListBoxItemStyle}">
                                         <ListBox.ItemTemplate>
@@ -230,7 +230,7 @@
                                     </ListBox>
                                     <Button Content="Добавить Таблицу" Click="AddTable_Click" Margin="5"/>
                                     <Label Foreground="White">Выбранные таблицы</Label>
-                                    <ListBox x:Name="SelectedTablesList" Margin="5" Height="100" SelectionMode="Multiple"
+                                    <ListBox x:Name="SelectedTablesList" Margin="5" Height="100" SelectionMode="Single"
                                          ItemsSource="{Binding SelectedDataMart.SelectedTables}"
                                          ItemContainerStyle="{StaticResource DarkListBoxItemStyle}">
                                         <ListBox.ItemTemplate>

@@ -425,6 +425,8 @@ namespace DataMartBuilder
 
         private async void TransferData_Click(object sender, RoutedEventArgs e)
         {
+            SaveData();
+
             MainGrid.IsEnabled = false;
             TransferDataButton.IsEnabled = false;
 
